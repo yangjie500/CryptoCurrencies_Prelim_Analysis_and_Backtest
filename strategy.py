@@ -16,22 +16,24 @@ class TestStrategy(bt.Strategy):
     
     self.sma = bt.indicators.MovingAverageSimple(
       self.datas[0], 
-      period=self.p.maperiod)
+      period=self.p.maperiod
+      )
     
     self.sma_slow = bt.indicators.MovingAverageSimple(
       self.datas[0], 
-      period=50)
+      period=50,
+      plot=False
+      )
 
-    self.crossup = bt.indicators.CrossUp(self.sma, self.sma_slow)
+    self.crossup = bt.indicators.CrossUp(self.sma, self.sma_slow, plot=False)
 
     self.rsi = bt.indicators.RSI_EMA(period = 14)
 
     self.boll = bt.indicators.BollingerBands(
       period=21,
-      devfactor=2
+      devfactor=2,
+      plot=False
     )
-    self.timespan = None
-    self.crossupMA = False
     self.order = None
 
   def notify_order(self, order):
@@ -45,22 +47,20 @@ class TestStrategy(bt.Strategy):
       if order.isbuy():
         self.log('EXECUTED BUY of %.2f at PRICE: %.2f' % (order.executed.size, order.executed.price))
         self.price_position = order.executed.price
-        self.order = None
         
       
       elif order.issell():
         self.log('EXECUTED SELL of %.2f at PRICE: %.2f' % (order.executed.size, order.executed.price))
         self.price_position = None
-        self.order = None
-
       
 
     elif order.status in [order.Canceled, order.Margin, order.Rejected, order.Expired, order.Partial]:
       self.log('ORDER CANCELED/MARGIN/REJECTED')
-      self.order = None
+     
 
     
     # No pending order
+    self.order = None
       
 
   def next(self):
